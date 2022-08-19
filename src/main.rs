@@ -25,15 +25,16 @@ pub async fn main() {
     tracing_subscriber::fmt().with_env_filter(filter).init();
 
     let mut rng = StdRng::from_entropy();
-    let mut client =
-        dams_local_client::api::connect(format!("https://{}:1113", "127.0.0.1"))
-            .await
-            .expect("Could not return a client");
 
     let cli: client::Cli = client::Cli::from_args();
     let client_config = Config::load(cli.config.unwrap())
         .await
         .expect("Failed to load client config");
+
+    let mut client =
+        dams_local_client::api::connect(cli.server)
+            .await
+            .expect("Could not return a client");
 
 
     let result = match cli.client {

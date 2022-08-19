@@ -9,6 +9,10 @@ pub struct Cli {
     #[structopt(long)]
     pub config: Option<PathBuf>,
 
+    /// The address for the server.
+    #[structopt(long)]
+    pub server: String,
+
     /// Run client commands.
     #[structopt(subcommand)]
     pub client: Client,
@@ -24,10 +28,6 @@ pub enum Client {
 #[derive(Debug, StructOpt)]
 #[non_exhaustive]
 pub struct Register {
-    /// The address for the server.
-    #[structopt(long)]
-    pub server: String,
-
     #[structopt(long)]
     pub user_id: String,
 
@@ -39,10 +39,6 @@ pub struct Register {
 #[derive(Debug, StructOpt)]
 #[non_exhaustive]
 pub struct Open {
-    /// The address for the server.
-    #[structopt(long)]
-    pub server: String,
-
     #[structopt(long)]
     pub user_id: String,
 
