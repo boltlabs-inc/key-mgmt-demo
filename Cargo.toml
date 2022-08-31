@@ -7,7 +7,7 @@ edition = "2021"
 
 [dependencies]
 anyhow = "1"
-dams-local-client = { git = "https://github.com/boltlabs-inc/key-mgmt.git", branch = "develop", features=["allow_explicit_certificate_trust"]}
+dams-client = { git = "https://github.com/boltlabs-inc/key-mgmt.git", branch = "develop", features=["allow_explicit_certificate_trust"]}
 dams = { git = "https://github.com/boltlabs-inc/key-mgmt.git", branch = "develop" }
 futures = "0"
 rand = "0"
