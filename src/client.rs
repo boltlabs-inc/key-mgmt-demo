@@ -13,6 +13,10 @@ pub struct Cli {
     #[structopt(long)]
     pub server: String,
 
+    /// Local storage
+    #[structopt(long)]
+    pub storage: String,
+
     /// Run client commands.
     #[structopt(subcommand)]
     pub client: Client,

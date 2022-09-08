@@ -10,6 +10,8 @@ use dams::config::client::Config;
 use anyhow::anyhow;
 use rand::{prelude::StdRng, SeedableRng};
 use std::str::FromStr;
+use kv::Config as KvConfig;
+use kv::*;
 
 pub(crate) mod client;
 
@@ -28,6 +30,11 @@ pub async fn main() {
         .await
         .expect("Failed to load client config");
 
+    let storage = String::from_str(&cli.storage).unwrap();
+    // Configure the local storage
+    let mut cfg = KvConfig::new(storage.as_str());
+    // Open the key-value store
+    let store = Store::new(cfg);
 
     let result = match cli.client {
         Register(_) => {
