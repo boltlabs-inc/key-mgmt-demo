@@ -30,23 +30,41 @@ pub async fn main() {
 
 
     let result = match cli.client {
-        Register(register) => {
-            DamsClient::register(&UserId::from_str(&register.user_id).unwrap(), &Password::from_str(&register.password).unwrap(), &client_config).await
+        Register(_) => {
+            DamsClient::register(&UserId::from_str(&cli.user_id).unwrap(), &Password::from_str(&cli.password).unwrap(), &client_config).await
                 .map_err(|e| anyhow!(e))
                 .map(|sess| {
                     info!("Registered and opened a session: {:?}", sess);
                     sess
                 })
         },
-        Client::Open(open) => {
-            DamsClient::authenticated_client(&UserId::from_str(&open.user_id).unwrap(), &Password::from_str(&open.password).unwrap(), &client_config)
+        Client::Open(_) => {
+            DamsClient::authenticated_client(&UserId::from_str(&cli.user_id).unwrap(), &Password::from_str(&cli.password).unwrap(), &client_config)
             .await
                 .map_err(|e| anyhow!(e))
                 .map(|sess| {
                     info!("Opened a session: {:?}", sess);
                     sess
                 })
-        }
+        },
+        Client::Generate(generate) => {
+            let res = DamsClient::authenticated_client(&UserId::from_str(&cli.user_id).unwrap(), &Password::from_str(&cli.password).unwrap(), &client_config)
+            .await
+                .map_err(|e| anyhow!(e))
+                .map(|sess| {
+                    info!("Opened a session: {:?}", sess);
+                    sess
+                });
+            let key_id = [0u8; 32];
+            info!("Proceed to generate a secret...");
+            info!("Key ID: {:?}", key_id);
+            // DamsClient::generate().await.map_err(|e| anyhow!(e))
+            //     .map(|sess| {
+            //         info!("Opened a session: {:?}", sess);
+            //         sess
+            //     })        
+            res
+        },
     };
     if let Err(e) = result {
         error!("{}, caused by: {}", e, e.root_cause());

@@ -16,32 +16,40 @@ pub struct Cli {
     /// Run client commands.
     #[structopt(subcommand)]
     pub client: Client,
+
+    /// User ID
+    #[structopt(long)]
+    pub user_id: String,
+
+    /// Passphrase
+    #[structopt(long)]
+    pub password: String,
 }
 
 #[derive(Debug, StructOpt)]
 pub enum Client {
     Register(Register),
     Open(Open),
+    Generate(Generate),
 }
 
 /// Register with the server.
 #[derive(Debug, StructOpt)]
 #[non_exhaustive]
-pub struct Register {
-    #[structopt(long)]
-    pub user_id: String,
-
-    #[structopt(long)]
-    pub password: String,
-}
+pub struct Register {}
 
 /// Authenticate with the server.
 #[derive(Debug, StructOpt)]
 #[non_exhaustive]
-pub struct Open {
-    #[structopt(long)]
-    pub user_id: String,
+pub struct Open {}
 
-    #[structopt(long)]
-    pub password: String,
+/// Generate a secret
+#[derive(Debug, StructOpt)]
+#[non_exhaustive]
+pub struct Generate {
+    // #[structopt(long)]
+    // pub user_id: String,
+
+    // #[structopt(long)]
+    // pub password: String,
 }
