@@ -9,9 +9,9 @@ pub struct Cli {
     #[structopt(long)]
     pub config: Option<PathBuf>,
 
-    /// The address for the server.
-    #[structopt(long)]
-    pub server: String,
+    // /// The address for the server.
+    // #[structopt(long)]
+    // pub server: String,
 
     /// Local storage
     #[structopt(long)]
