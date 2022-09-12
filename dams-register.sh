@@ -1,6 +1,6 @@
 #!/bin/bash
 
-mode=release
+mode=debug
 storage=local.db
 
 userid=$1

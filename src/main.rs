@@ -36,6 +36,8 @@ pub async fn main() {
     // Open the key-value store
     let store = Store::new(cfg);
 
+    // store something
+
     let result = match cli.client {
         Register(_) => {
             DamsClient::register(&UserId::from_str(&cli.user_id).unwrap(), &Password::from_str(&cli.password).unwrap(), &client_config).await
