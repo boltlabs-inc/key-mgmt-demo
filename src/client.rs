@@ -30,6 +30,7 @@ pub struct Cli {
 pub enum Client {
     Register(Register),
     Generate(Generate),
+    List(List),
 }
 
 /// Register with the server.
@@ -40,10 +41,13 @@ pub struct Register {}
 /// Authenticate and Generate a secret
 #[derive(Debug, StructOpt)]
 #[non_exhaustive]
-pub struct Generate {
-    // #[structopt(long)]
-    // pub user_id: String,
+pub struct Generate {}
 
-    // #[structopt(long)]
-    // pub password: String,
+/// Authenticate and Generate a secret
+#[derive(Debug, StructOpt)]
+#[non_exhaustive]
+pub struct List {
+    // add optional key ID
+    #[structopt(short, long)]
+    key_id: Option<String>,
 }
