@@ -16,5 +16,5 @@ if [[ $password == "" ]]; then
 fi
 
 config="./dev/Client.toml"
-echo "registering a user '$account'"
-./target/$mode/key-mgmt-demo --config "$config" --storage "$storage" --account-name "$account" --password "$password" register
+echo "Authenticate user '$account'"
+./target/$mode/key-mgmt-demo --config "$config" --storage "$storage" --account-name "$account" --password "$password" generate

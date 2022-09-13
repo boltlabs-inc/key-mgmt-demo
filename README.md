@@ -8,15 +8,10 @@ Run a key server using the instructions in the README.md of [the DAMS repo.](htt
 
 ## Register a User
 ```shell
-./target/debug/key-mgmt-demo --config "./dev/Client.toml" --storage "local.db" --user-id "user_id" --password "SuperSecurePassword" register
+./target/debug/key-mgmt-demo --config "./dev/Client.toml" --storage "local.db" --account-name "account1" --password "SuperSecurePassword" register
 ```
 
-## Open a New Session
+## Authenticate and Generate a secret
 ```shell
-./target/debug/key-mgmt-demo --config "./dev/Client.toml"  --storage "local.db" --user-id "user_id" --password "SuperSecurePassword" open
-```
-
-## Generate a secret
-```shell
-./target/debug/key-mgmt-demo --config "./dev/Client.toml" --storage "local.db" --user-id "user_id" --password "SuperSecurePassword" generate
+./target/debug/key-mgmt-demo --config "./dev/Client.toml"  --storage "local.db" --account-name "account1" --password "SuperSecurePassword" generate
 ```

@@ -9,10 +9,6 @@ pub struct Cli {
     #[structopt(long)]
     pub config: Option<PathBuf>,
 
-    // /// The address for the server.
-    // #[structopt(long)]
-    // pub server: String,
-
     /// Local storage
     #[structopt(long)]
     pub storage: String,
@@ -23,7 +19,7 @@ pub struct Cli {
 
     /// User ID
     #[structopt(long)]
-    pub user_id: String,
+    pub account_name: String,
 
     /// Passphrase
     #[structopt(long)]
@@ -33,7 +29,6 @@ pub struct Cli {
 #[derive(Debug, StructOpt)]
 pub enum Client {
     Register(Register),
-    Open(Open),
     Generate(Generate),
 }
 
@@ -42,12 +37,7 @@ pub enum Client {
 #[non_exhaustive]
 pub struct Register {}
 
-/// Authenticate with the server.
-#[derive(Debug, StructOpt)]
-#[non_exhaustive]
-pub struct Open {}
-
-/// Generate a secret
+/// Authenticate and Generate a secret
 #[derive(Debug, StructOpt)]
 #[non_exhaustive]
 pub struct Generate {

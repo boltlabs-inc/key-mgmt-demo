@@ -5,7 +5,7 @@ use crate::client::Client;
 use crate::Client::Register;
 use dams_client::client::DamsClient;
 use dams_client::client::Password;
-use dams::user::UserId;
+use dams::user::AccountName;
 use dams::config::client::Config;
 use anyhow::anyhow;
 use rand::{prelude::StdRng, SeedableRng};
@@ -36,43 +36,28 @@ pub async fn main() {
     // Open the key-value store
     let store = Store::new(cfg);
 
+    // Fetch user credentials
+    let account_name = AccountName::from_str(&cli.account_name).unwrap();
+    info!("Account Name: {:?}", account_name);
+    let password = Password::from_str(&cli.password).unwrap();
     // store something
 
     let result = match cli.client {
         Register(_) => {
-            DamsClient::register(&UserId::from_str(&cli.user_id).unwrap(), &Password::from_str(&cli.password).unwrap(), &client_config).await
+            DamsClient::register(&account_name, &password, &client_config).await
                 .map_err(|e| anyhow!(e))
                 .map(|sess| {
                     info!("Registered and opened a session: {:?}", sess);
                     sess
                 })
         },
-        Client::Open(_) => {
-            DamsClient::authenticated_client(&UserId::from_str(&cli.user_id).unwrap(), &Password::from_str(&cli.password).unwrap(), &client_config)
-            .await
+        Client::Generate(_) => {
+            let dams_client = DamsClient::authenticated_client(&account_name, &password, &client_config).await.unwrap();
+            dams_client.generate_and_store().await
                 .map_err(|e| anyhow!(e))
-                .map(|sess| {
-                    info!("Opened a session: {:?}", sess);
-                    sess
+                .map(|key| {
+                    info!("Generated a key: {:?}", key);
                 })
-        },
-        Client::Generate(generate) => {
-            let res = DamsClient::authenticated_client(&UserId::from_str(&cli.user_id).unwrap(), &Password::from_str(&cli.password).unwrap(), &client_config)
-            .await
-                .map_err(|e| anyhow!(e))
-                .map(|sess| {
-                    info!("Opened a session: {:?}", sess);
-                    sess
-                });
-            let key_id = [0u8; 32];
-            info!("Proceed to generate a secret...");
-            info!("Key ID: {:?}", key_id);
-            // DamsClient::generate().await.map_err(|e| anyhow!(e))
-            //     .map(|sess| {
-            //         info!("Opened a session: {:?}", sess);
-            //         sess
-            //     })        
-            res
         },
     };
     if let Err(e) = result {
