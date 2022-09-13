@@ -60,14 +60,7 @@ pub async fn main() {
                     info!("Generated a key object: {:?}", key_object);
                     let (key_id, local_storage) = key_object;
                     // TODO: Need compact hex representation
-                    let mut key_id_vec = Vec::new();
-                    let mut it = key_id.into_iter();
-                    loop {
-                        match it.next() {
-                            Some(x) => key_id_vec.push(x),
-                            None => break,
-                        }
-                    }
+                    let key_id_vec: Vec<u8> = key_id.into_iter().collect();
                     let key_id_hex = hex::encode(&key_id_vec);
                     info!("Key ID: {:?}", key_id_hex);
                     let value = serde_json::to_string(&local_storage).unwrap();
@@ -84,7 +77,7 @@ pub async fn main() {
                 for item in bucket.iter() {
                     let item = item.unwrap();
                     let key: String = item.key().unwrap();
-                    let value = item.value::<String>().unwrap();
+                    let value: String = item.value().unwrap();
                     info!("{}: Key ID: {} => {}", index, key, value);
                     index += 1;
                 }
