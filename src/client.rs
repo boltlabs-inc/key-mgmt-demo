@@ -7,41 +7,47 @@ use structopt::StructOpt;
 pub struct Cli {
     /// Path to a configuration file.
     #[structopt(long)]
-    pub config: Option<PathBuf>,
+    pub config: PathBuf,
 
-    /// The address for the server.
+    /// Local storage
     #[structopt(long)]
-    pub server: String,
+    pub storage: String,
 
     /// Run client commands.
     #[structopt(subcommand)]
     pub client: Client,
+
+    /// User ID
+    #[structopt(long)]
+    pub account_name: String,
+
+    /// Passphrase
+    #[structopt(long)]
+    pub password: String,
 }
 
 #[derive(Debug, StructOpt)]
 pub enum Client {
     Register(Register),
-    Open(Open),
+    Generate(Generate),
+    List(List),
 }
 
 /// Register with the server.
 #[derive(Debug, StructOpt)]
 #[non_exhaustive]
-pub struct Register {
-    #[structopt(long)]
-    pub user_id: String,
+pub struct Register {}
 
-    #[structopt(long)]
-    pub password: String,
-}
-
-/// Authenticate with the server.
+/// Authenticate and Generate a secret
 #[derive(Debug, StructOpt)]
 #[non_exhaustive]
-pub struct Open {
-    #[structopt(long)]
-    pub user_id: String,
+pub struct Generate {}
 
-    #[structopt(long)]
-    pub password: String,
+/// Authenticate and Generate a secret
+#[derive(Debug, StructOpt)]
+#[non_exhaustive]
+pub struct List {
+    // add optional key ID
+    #[structopt(short, long)]
+    pub key_id: Option<String>,
 }
