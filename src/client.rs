@@ -7,7 +7,7 @@ use structopt::StructOpt;
 pub struct Cli {
     /// Path to a configuration file.
     #[structopt(long)]
-    pub config: Option<PathBuf>,
+    pub config: PathBuf,
 
     /// Local storage
     #[structopt(long)]
@@ -49,5 +49,5 @@ pub struct Generate {}
 pub struct List {
     // add optional key ID
     #[structopt(short, long)]
-    key_id: Option<String>,
+    pub key_id: Option<String>,
 }
