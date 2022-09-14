@@ -19,7 +19,7 @@ sh ./run-key-server.sh
 
 Now you're ready to generate and retrieve secrets locally and remotely using the CLI of the sample demo app.
 
-# Quick Testing DamsClient via scripts
+## Quick Testing DamsClient via scripts
 
 We have provided some bash scripts to simpplify `DamsClient` API testing. It allows the following basic operations:
 * **Register a user.** Should only be executed once per user.
@@ -47,7 +47,7 @@ sh retrieve.sh account1 SuperSecurePassword
 sh list_secrets.sh account1 SuperSecurePassword
 ```
 
-# Running operations via CLI
+## Running operations via CLI
 
 ### Register a User
 ```shell
@@ -69,7 +69,7 @@ sh list_secrets.sh account1 SuperSecurePassword
 ./target/debug/key-mgmt-demo --config "./dev/Client.toml"  --storage "local.db" --account-name "account1" --password "SuperSecurePassword" list
 ```
 
-# Walkthrough of the DAMS client API
+## Walkthrough of the DAMS client API
 
 To build your own application, we provide a walkthrough of the `DamsClient` API in this section.
 ```
