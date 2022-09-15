@@ -3,8 +3,8 @@
 ### Table of Contents
 1. [Install](#install)
 2. [Testing `DamsClient` via scripts](#testing-damsclient-via-scripts)
-3. [`DamsClient` API walkthrough](#damsclient-api-walkthrough)
-4. [Running operations via CLI](#running-operations-via-cli)
+3. [Running operations via CLI](#running-operations-via-cli)
+4. [`DamsClient` API walkthrough](#damsclient-api-walkthrough)
 
 ## Install
 
