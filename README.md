@@ -1,5 +1,13 @@
 # Demo of DAMS client and key server
 
+# Table of Contents
+1. [Install](#install)
+2. [Testing `DamsClient` via scripts](#quick-testing-damsclient-via-scripts)
+3. [`DamsClient` API walkthrough](#damsclient-api-walkthrough)
+4. [Running operations via CLI](#running-operations-via-cli)
+
+## Install
+
 You can build the key server automatically in this demo directory using the following script:
 ```shell
 sh ./build-key-server.sh
@@ -47,37 +55,9 @@ sh retrieve.sh account1 SuperSecurePassword
 sh list_secrets.sh account1 SuperSecurePassword
 ```
 
-## Running operations via CLI
+## `DamsClient` API walkthrough
 
-### Register a User
-```shell
-./target/debug/key-mgmt-demo --config "./dev/Client.toml" --storage "local.db" --account-name "account1" --password "SuperSecurePassword" register
-```
-
-### Authenticate and Generate a secret
-```shell
-./target/debug/key-mgmt-demo --config "./dev/Client.toml"  --storage "local.db" --account-name "account1" --password "SuperSecurePassword" generate
-```
-
-### Authenticate and Retrieve a secret
-```shell
-./target/debug/key-mgmt-demo --config "./dev/Client.toml"  --storage "local.db" --account-name "account1" --password "SuperSecurePassword" retrieve --key-id <key-id-hex>
-```
-
-### List keys stored locally
-```shell
-./target/debug/key-mgmt-demo --config "./dev/Client.toml"  --storage "local.db" --account-name "account1" --password "SuperSecurePassword" list
-```
-
-### Delete key stored locally
-```shell
-./target/debug/key-mgmt-demo --config "./dev/Client.toml"  --storage "local.db" --account-name "account1" --password "SuperSecurePassword" delete --key-id <key-id-hex>
-```
-
-
-## Walkthrough of the `DamsClient` API
-
-To build your own application, we provide a walkthrough of the `DamsClient` API which consists of three main API calls. 
+To build your own application, we provide a walkthrough of the `DamsClient` API which consists of four API calls. 
 * ``DamsClient::register()`` - takes the account name, password and client configuration and registers the user with the server.
 * ``DamsClient::authenticated_client()`` - takes the account name, password and client configuration and opens a secure session with the server if the specified credentials are correct.
 * ``DamsClient::generate_and_store()`` - generates a secret and stores it on the key server. Outputs a tuple that consists of a key ID and wrapped secret for local storage.
@@ -139,7 +119,7 @@ let result = dams_client.generate_and_store().await
 
 Once a key has been generated and stored remotely, you can authenticate to the key server and retrieve the secret if you persist the key ID in your local storage as follows:
 ```
-// load the acount name, password and client config as before
+// Load the acount name, password and client config as before
 ...
 // Authenticate to the key server as before
 ...
@@ -157,4 +137,30 @@ let result = dams_client.retrieve(&key_id, RetrieveContext::LocalOnly)
                             // Proceed to use or store the arbitrary_key in your local storage DB.
                         });
 ...
+```
+## Running operations via CLI
+
+### Register a User
+```shell
+./target/debug/key-mgmt-demo --config "./dev/Client.toml" --storage "local.db" --account-name "account1" --password "SuperSecurePassword" register
+```
+
+### Authenticate and Generate a secret
+```shell
+./target/debug/key-mgmt-demo --config "./dev/Client.toml"  --storage "local.db" --account-name "account1" --password "SuperSecurePassword" generate
+```
+
+### Authenticate and Retrieve a secret
+```shell
+./target/debug/key-mgmt-demo --config "./dev/Client.toml"  --storage "local.db" --account-name "account1" --password "SuperSecurePassword" retrieve --key-id <key-id-hex>
+```
+
+### List keys stored locally
+```shell
+./target/debug/key-mgmt-demo --config "./dev/Client.toml"  --storage "local.db" --account-name "account1" --password "SuperSecurePassword" list
+```
+
+### Delete key stored locally
+```shell
+./target/debug/key-mgmt-demo --config "./dev/Client.toml"  --storage "local.db" --account-name "account1" --password "SuperSecurePassword" delete --key-id <key-id-hex>
 ```
