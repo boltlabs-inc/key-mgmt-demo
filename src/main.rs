@@ -5,6 +5,8 @@ use dams::config::client::Config;
 use dams::user::AccountName;
 use dams_client::client::DamsClient;
 use dams_client::client::Password;
+use dams::crypto::KeyId;
+use dams::RetrieveContext;
 use kv::{Config as KvConfig, Store};
 use std::str::FromStr;
 use structopt::StructOpt;
@@ -36,7 +38,6 @@ pub async fn main() -> anyhow::Result<()> {
 
     // Fetch user credentials
     let account_name = AccountName::from_str(&cli.account_name)?;
-    info!("Account Name: {:?}", account_name);
     let password = Password::from_str(&cli.password)?;
 
     let result = match cli.client {
@@ -54,20 +55,41 @@ pub async fn main() -> anyhow::Result<()> {
                 .generate_and_store()
                 .await
                 .map_err(|e| anyhow!(e))
-                .map(|key_object| {
+                .map(|sec_key| {
                     let bucket = store.bucket::<String, String>(Some(&cli.account_name))?;
-                    info!("Generated a key object: {:?}", key_object);
-                    let (key_id, local_storage) = key_object;
-                    // TODO: Need compact hex representation
+                    // parse the tuple
+                    let (key_id, secret) = sec_key;
+
                     let key_id_vec: Vec<u8> = key_id.into_iter().collect();
                     let key_id_hex = hex::encode(&key_id_vec);
-                    info!("Key ID: {:?}", key_id_hex);
-                    let value = serde_json::to_string(&local_storage)?;
+                    info!("Generated a key with ID: {:?}", key_id_hex);
+                    let value = serde_json::to_string(&secret)?;
                     bucket.set(&key_id_hex, &value)?;
 
                     Ok(())
                 })?
-        }
+        },
+        Client::Retrieve(retrieve) => {
+            let dams_client =
+                DamsClient::authenticated_client(&account_name, &password, &client_config).await?;
+            let key_id_vec = hex::decode(&retrieve.key_id).unwrap();
+            info!("Key ID: {:?}", key_id_vec);
+            let key_id_str = format!("{:?}", key_id_vec);
+            let key_id: KeyId = serde_json::from_str(&key_id_str).unwrap();
+            dams_client
+                .retrieve(&key_id, RetrieveContext::LocalOnly)
+                .await
+                .map_err(|e| anyhow!(e))
+                .map(|arbitrary_key| {
+                    info!("Retrieved a wrapped key from server: {:?}", arbitrary_key);
+                    let bucket = store.bucket::<String, String>(Some(&cli.account_name))?;
+                    let value = serde_json::to_string(&arbitrary_key)?;
+                    // Override what's in local storage
+                    bucket.set(&retrieve.key_id, &value)?;
+
+                    Ok(())
+                })?
+        },
         Client::List(_list) => {
             // extract contents of local storage
             let dams_client =
@@ -79,12 +101,25 @@ pub async fn main() -> anyhow::Result<()> {
                     let item = item?;
                     let key: String = item.key()?;
                     let value: String = item.value()?;
-                    info!("{}: Key ID: {} => {}", index, key, value);
+                    info!("{}: Key ID: {} =>\n{}", index, key, value);
                     index += 1;
                 }
             }
             return Ok(());
-        }
+        },
+        Client::Delete(delete) => {
+            let dams_client =
+                DamsClient::authenticated_client(&account_name, &password, &client_config).await;
+            if dams_client.is_ok() { 
+                let bucket = store.bucket::<String, String>(Some(&cli.account_name))?;
+                let key_id = delete.key_id;
+                let value = String::from("None");
+                bucket.set(&key_id, &value)?;
+                info!("Deleted key with ID: {:?}", key_id);
+            }
+            return Ok(());
+
+        },
     };
     if let Err(e) = result {
         error!("{}, caused by: {}", e, e.root_cause());

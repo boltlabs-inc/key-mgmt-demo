@@ -30,7 +30,9 @@ pub struct Cli {
 pub enum Client {
     Register(Register),
     Generate(Generate),
+    Retrieve(Retrieve),
     List(List),
+    Delete(Delete),
 }
 
 /// Register with the server.
@@ -43,7 +45,25 @@ pub struct Register {}
 #[non_exhaustive]
 pub struct Generate {}
 
-/// Authenticate and Generate a secret
+/// Authenticate and Retrieve a secret given key_id
+#[derive(Debug, StructOpt)]
+#[non_exhaustive]
+pub struct Retrieve {
+    // key ID
+    #[structopt(short, long)]
+    pub key_id: String,
+}
+
+/// Delete a key
+#[derive(Debug, StructOpt)]
+#[non_exhaustive]
+pub struct Delete {
+    // key ID
+    #[structopt(short, long)]
+    pub key_id: String,
+}
+
+/// List the keys stored locally
 #[derive(Debug, StructOpt)]
 #[non_exhaustive]
 pub struct List {
