@@ -2,7 +2,7 @@
 
 ### Table of Contents
 1. [Install](#install)
-2. [Testing `DamsClient` via scripts](#quick-testing-damsclient-via-scripts)
+2. [Testing `DamsClient` via scripts](#testing-damsclient-via-scripts)
 3. [`DamsClient` API walkthrough](#damsclient-api-walkthrough)
 4. [Running operations via CLI](#running-operations-via-cli)
 
@@ -27,9 +27,9 @@ sh ./run-key-server.sh
 
 Now you're ready to generate and retrieve secrets locally and remotely using the CLI of the sample demo app.
 
-## Quick Testing `DamsClient` via scripts
+## Testing `DamsClient` via scripts
 
-We have provided some bash scripts to simpplify `DamsClient` API testing. It allows the following basic operations:
+We have provided some bash scripts to simplify `DamsClient` API testing. It allows the following basic operations:
 * **Register a user.** Should only be executed once per user.
 * **Authenticate and generate a secret.** Can be called repeatedly to generate as many keys per account as possible. The app stores a backup of the secret in a local storage DB.
 * **Retrieve a secret based on a key ID.** Allows the user to securely retrieve any secrets from the key server.
