@@ -31,7 +31,7 @@ Now you're ready to generate and retrieve secrets locally and remotely using the
 
 We have provided some bash scripts to simplify `DamsClient` API testing. It allows the following basic operations:
 * **Register a user.** Should only be executed once per user.
-* **Authenticate and generate a secret.** Can be called repeatedly to generate as many keys per account as possible. The app stores a backup of the secret in a local storage DB.
+* **Authenticate and generate a secret.** Can be called repeatedly to generate as many keys per account as possible. The app shows how to backup the secret in a local storage DB (but backup functionality is outside the scope of the `DamsClient`).
 * **Retrieve a secret based on a key ID.** Allows the user to securely retrieve any secrets from the key server.
 * **List locally stored secrets.** Shows list of stored key IDs and secrets for a given account.
 
@@ -53,6 +53,33 @@ sh retrieve.sh account1 SuperSecurePassword
 ### List secrets stored locally
 ```shell
 sh list_secrets.sh account1 SuperSecurePassword
+```
+
+## Running operations via CLI
+
+### Register a User
+```shell
+./target/debug/key-mgmt-demo --config "./dev/Client.toml" --storage "local.db" --account-name "account1" --password "SuperSecurePassword" register
+```
+
+### Authenticate and Generate a secret
+```shell
+./target/debug/key-mgmt-demo --config "./dev/Client.toml"  --storage "local.db" --account-name "account1" --password "SuperSecurePassword" generate
+```
+
+### Authenticate and Retrieve a secret
+```shell
+./target/debug/key-mgmt-demo --config "./dev/Client.toml"  --storage "local.db" --account-name "account1" --password "SuperSecurePassword" retrieve --key-id <key-id-hex>
+```
+
+### List keys stored locally
+```shell
+./target/debug/key-mgmt-demo --config "./dev/Client.toml"  --storage "local.db" --account-name "account1" --password "SuperSecurePassword" list
+```
+
+### Delete key stored locally
+```shell
+./target/debug/key-mgmt-demo --config "./dev/Client.toml"  --storage "local.db" --account-name "account1" --password "SuperSecurePassword" delete --key-id <key-id-hex>
 ```
 
 ## `DamsClient` API walkthrough
@@ -138,29 +165,7 @@ let result = dams_client.retrieve(&key_id, RetrieveContext::LocalOnly)
                         });
 ...
 ```
-## Running operations via CLI
 
-### Register a User
-```shell
-./target/debug/key-mgmt-demo --config "./dev/Client.toml" --storage "local.db" --account-name "account1" --password "SuperSecurePassword" register
-```
+## What's Next
 
-### Authenticate and Generate a secret
-```shell
-./target/debug/key-mgmt-demo --config "./dev/Client.toml"  --storage "local.db" --account-name "account1" --password "SuperSecurePassword" generate
-```
-
-### Authenticate and Retrieve a secret
-```shell
-./target/debug/key-mgmt-demo --config "./dev/Client.toml"  --storage "local.db" --account-name "account1" --password "SuperSecurePassword" retrieve --key-id <key-id-hex>
-```
-
-### List keys stored locally
-```shell
-./target/debug/key-mgmt-demo --config "./dev/Client.toml"  --storage "local.db" --account-name "account1" --password "SuperSecurePassword" list
-```
-
-### Delete key stored locally
-```shell
-./target/debug/key-mgmt-demo --config "./dev/Client.toml"  --storage "local.db" --account-name "account1" --password "SuperSecurePassword" delete --key-id <key-id-hex>
-```
+TODO
