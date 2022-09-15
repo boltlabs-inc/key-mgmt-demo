@@ -1,6 +1,6 @@
 # Demo of DAMS client and key server
 
-# Table of Contents
+### Table of Contents
 1. [Install](#install)
 2. [Testing `DamsClient` via scripts](#quick-testing-damsclient-via-scripts)
 3. [`DamsClient` API walkthrough](#damsclient-api-walkthrough)
