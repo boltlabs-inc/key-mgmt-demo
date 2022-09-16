@@ -1,3 +1,8 @@
+//! This is a demonstration of a simple API for generating and retrieving arbitrary secrets from a key server.
+//! We show the integrated use of TLS and OPAQUE protocol to securely transfer key material between the DamsClient
+//! and key server, where it is securely stored.
+//!
+
 use crate::client::Client;
 use crate::Client::Register;
 use anyhow::anyhow;
@@ -26,13 +31,16 @@ pub async fn main() -> anyhow::Result<()> {
     tracing_subscriber::fmt().with_env_filter(filter).init();
 
     let cli: client::Cli = client::Cli::from_args();
+    // Load the client configuration from disk (Client.toml)
+    // Needs to be provided with each DamsClient API call
     let client_config = Config::load(cli.config)
         .await
         .expect("Failed to load client config");
 
-    let storage = String::from_str(&cli.storage)?;
+    // Get path to local storage
+    let storage_path = String::from_str(&cli.storage)?;
     // Configure the local storage
-    let cfg = KvConfig::new(storage.as_str());
+    let cfg = KvConfig::new(storage_path.as_str());
     // Open the key-value store
     let store = Store::new(cfg)?;
 
@@ -41,6 +49,7 @@ pub async fn main() -> anyhow::Result<()> {
     let password = Password::from_str(&cli.password)?;
 
     let result = match cli.client {
+        // Register once with an account and password to the key server
         Register(_) => DamsClient::register(&account_name, &password, &client_config)
             .await
             .map_err(|e| anyhow!(e))
@@ -49,17 +58,19 @@ pub async fn main() -> anyhow::Result<()> {
                 sess
             }),
         Client::Generate(_) => {
+            // Authenticate user to the key server
             let dams_client =
                 DamsClient::authenticated_client(&account_name, &password, &client_config).await?;
+            // If successful, proceed to generate a secret with the established session
             dams_client
                 .generate_and_store()
                 .await
                 .map_err(|e| anyhow!(e))
                 .map(|sec_key| {
                     let bucket = store.bucket::<String, String>(Some(&cli.account_name))?;
-                    // parse the tuple
+                    // Proceed to retrieve the key id and wrapped secret
                     let (key_id, secret) = sec_key;
-
+                    // Prepare the key_id and secret for local storage
                     let key_id_vec: Vec<u8> = key_id.into_iter().collect();
                     let key_id_hex = hex::encode(&key_id_vec);
                     info!("Generated a key with ID: {:?}", key_id_hex);
@@ -70,12 +81,16 @@ pub async fn main() -> anyhow::Result<()> {
                 })?
         },
         Client::Retrieve(retrieve) => {
+            // Authenticate user to the key server
             let dams_client =
                 DamsClient::authenticated_client(&account_name, &password, &client_config).await?;
             let key_id_vec = hex::decode(&retrieve.key_id).unwrap();
             info!("Key ID: {:?}", key_id_vec);
             let key_id_str = format!("{:?}", key_id_vec);
+            // Convert key ID from string into KeyID struct
             let key_id: KeyId = serde_json::from_str(&key_id_str).unwrap();
+            // If successful, proceed to retrieve the secret key from the server with the key ID
+            // and can specify a context for your intent with the secret (i.e., for local storage).            
             dams_client
                 .retrieve(&key_id, RetrieveContext::LocalOnly)
                 .await
@@ -91,7 +106,6 @@ pub async fn main() -> anyhow::Result<()> {
                 })?
         },
         Client::List(_list) => {
-            // extract contents of local storage
             let dams_client =
                 DamsClient::authenticated_client(&account_name, &password, &client_config).await;
             if dams_client.is_ok() {

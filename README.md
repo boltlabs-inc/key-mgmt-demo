@@ -13,7 +13,7 @@ You can build the key server automatically in this demo directory using the foll
 sh ./build-key-server.sh
 ```
 
-We recommend reviewing the instructions in the README.md of [the DAMS repo.](https://github.com/boltlabs-inc/key-mgmt) to ensure the MongoDB is installed correctly for your OS.
+We recommend reviewing the instructions in the README.md of [the DAMS repo](https://github.com/boltlabs-inc/key-mgmt) to ensure the MongoDB is installed correctly for your OS.
 
 If successful, then you can build the demo here as follows:
 ```shell
