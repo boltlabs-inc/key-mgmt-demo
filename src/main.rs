@@ -7,11 +7,11 @@ use crate::client::Client;
 use crate::Client::Register;
 use anyhow::anyhow;
 use dams::config::client::Config;
+use dams::crypto::KeyId;
 use dams::user::AccountName;
+use dams::RetrieveContext;
 use dams_client::client::DamsClient;
 use dams_client::client::Password;
-use dams::crypto::KeyId;
-use dams::RetrieveContext;
 use kv::{Config as KvConfig, Store};
 use std::str::FromStr;
 use structopt::StructOpt;
@@ -79,7 +79,7 @@ pub async fn main() -> anyhow::Result<()> {
 
                     Ok(())
                 })?
-        },
+        }
         Client::Retrieve(retrieve) => {
             // Authenticate user to the key server
             let dams_client =
@@ -90,7 +90,7 @@ pub async fn main() -> anyhow::Result<()> {
             // Convert key ID from string into KeyID struct
             let key_id: KeyId = serde_json::from_str(&key_id_str).unwrap();
             // If successful, proceed to retrieve the secret key from the server with the key ID
-            // and can specify a context for your intent with the secret (i.e., for local storage).            
+            // and can specify a context for your intent with the secret (i.e., for local storage).
             dams_client
                 .retrieve(&key_id, RetrieveContext::LocalOnly)
                 .await
@@ -104,7 +104,7 @@ pub async fn main() -> anyhow::Result<()> {
 
                     Ok(())
                 })?
-        },
+        }
         Client::List(_list) => {
             let dams_client =
                 DamsClient::authenticated_client(&account_name, &password, &client_config).await;
@@ -120,11 +120,11 @@ pub async fn main() -> anyhow::Result<()> {
                 }
             }
             return Ok(());
-        },
+        }
         Client::Delete(delete) => {
             let dams_client =
                 DamsClient::authenticated_client(&account_name, &password, &client_config).await;
-            if dams_client.is_ok() { 
+            if dams_client.is_ok() {
                 let bucket = store.bucket::<String, String>(Some(&cli.account_name))?;
                 let key_id = delete.key_id;
                 let value = String::from("None");
@@ -132,8 +132,7 @@ pub async fn main() -> anyhow::Result<()> {
                 info!("Deleted key with ID: {:?}", key_id);
             }
             return Ok(());
-
-        },
+        }
     };
     if let Err(e) = result {
         error!("{}, caused by: {}", e, e.root_cause());
