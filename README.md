@@ -168,7 +168,9 @@ let result = dams_client.retrieve(&key_id, RetrieveContext::LocalOnly)
 
 ## What's Next
 
-In the next development phases to come, we will demonstrate the following functionality in the `DamsClient`:
+In the next development phase, we will demonstrate the following functionality in the `DamsClient`:
 
 * A remote client and signing key support in addition to arbitrary keys
-* Expanded operations over the generated
+* An updated demo app that exercises the remote client API
+* Improve audit logging of key access
+* Allow for import/export of keys
