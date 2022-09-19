@@ -1,10 +1,10 @@
-# Demo of DAMS client and key server
+# Demo of Lock Keeper client and key server
 
 ### Table of Contents
 1. [Install](#install)
-2. [Testing `DamsClient` via scripts](#testing-damsclient-via-scripts)
+2. [Testing `LockKeeperClient` via scripts](#testing-lockkeeperclient-via-scripts)
 3. [Running operations via CLI](#running-operations-via-cli)
-4. [`DamsClient` API walkthrough](#damsclient-api-walkthrough)
+4. [`LockKeeperClient` API walkthrough](#lockkeeperclient-api-walkthrough)
 
 ## Install
 
@@ -13,7 +13,7 @@ You can build the key server automatically in this demo directory using the foll
 sh ./build-key-server.sh
 ```
 
-We recommend reviewing the instructions in the README.md of [the DAMS repo](https://github.com/boltlabs-inc/key-mgmt) to ensure the MongoDB is installed correctly for your OS.
+We recommend reviewing the instructions in the README.md of [the Lock Keeper repo](https://github.com/boltlabs-inc/key-mgmt) to ensure the MongoDB is installed correctly for your OS.
 
 If successful, then you can build the demo here as follows:
 ```shell
@@ -27,11 +27,11 @@ sh ./run-key-server.sh
 
 Now you're ready to generate and retrieve secrets locally and remotely using the CLI of the sample demo app.
 
-## Testing `DamsClient` via scripts
+## Testing `LockKeeperClient` via scripts
 
-We have provided some bash scripts to simplify `DamsClient` API testing. It allows the following basic operations:
+We have provided some bash scripts to simplify `LockKeeperClient` API testing. It allows the following basic operations:
 * **Register a user.** Should only be executed once per user.
-* **Authenticate and generate a secret.** Can be called repeatedly to generate as many keys per account as possible. The app shows how to backup the secret in a local storage DB (but backup functionality is outside the scope of the `DamsClient`).
+* **Authenticate and generate a secret.** Can be called repeatedly to generate as many keys per account as possible. The app shows how to backup the secret in a local storage DB (but backup functionality is outside the scope of the `LockKeeperClient`).
 * **Retrieve a secret based on a key ID.** Allows the user to securely retrieve any secrets from the key server.
 * **List locally stored secrets.** Shows list of stored key IDs and secrets for a given account.
 
@@ -82,13 +82,13 @@ sh list_secrets.sh account1 SuperSecurePassword
 ./target/debug/key-mgmt-demo --config "./dev/Client.toml"  --storage "local.db" --account-name "account1" --password "SuperSecurePassword" delete --key-id <key-id-hex>
 ```
 
-## `DamsClient` API walkthrough
+## `LockKeeperClient` API walkthrough
 
-To build your own application, we provide a walkthrough of the `DamsClient` API which consists of four API calls. 
-* ``DamsClient::register()`` - takes the account name, password and client configuration and registers the user with the server.
-* ``DamsClient::authenticated_client()`` - takes the account name, password and client configuration and opens a secure session with the server if the specified credentials are correct.
-* ``DamsClient::generate_and_store()`` - generates a secret and stores it on the key server. Outputs a tuple that consists of a key ID and wrapped secret for local storage.
-* ``DamsClient::retrieve()`` - retrieve a secret from the server given a key ID and a retrieve context (local storage or export only). Outputs a wrapped secret with the corresponding context.
+To build your own application, we provide a walkthrough of the `LockKeeperClient` API which consists of four API calls. 
+* ``LockKeeperClient::register()`` - takes the account name, password and client configuration and registers the user with the server.
+* ``LockKeeperClient::authenticated_client()`` - takes the account name, password and client configuration and opens a secure session with the server if the specified credentials are correct.
+* ``LockKeeperClient::generate_and_store()`` - generates a secret and stores it on the key server. Outputs a tuple that consists of a key ID and wrapped secret for local storage.
+* ``LockKeeperClient::retrieve()`` - retrieve a secret from the server given a key ID and a retrieve context (local storage or export only). Outputs a wrapped secret with the corresponding context.
 
 ### Register a User
 
@@ -99,21 +99,21 @@ let account_name = AccountName::from_str("account1")?;
 let password = Password::from_str("SuperSecurePassword")?;
 
 // Load the client config toml file above (i.e, Client.toml)
-// This tells the DamsClient how to reach the key server and 
+// This tells the LockKeeperClient how to reach the key server and 
 // loads the TLS certificate
 let client_config = Config::load(cli.config)
     .await
     .expect("Failed to load client config");
 
 // Now you can register the user
-let result = DamsClient::register(&account_name, &password, &client_config).await
+let result = LockKeeperClient::register(&account_name, &password, &client_config).await
                         .map_err(|e| anyhow!(e))
                         .map(|sess| {
                             info!("Successfully registered and here's the session info: {:?}", sess);
                             sess
                         });
 
-// If an error occurs, extract the DamsClientError type/message
+// If an error occurs, extract the LockKeeperClientError type/message
 if let Err(e) = result {
     error!("{}, caused by: {}", e, e.root_cause());
 }
@@ -126,10 +126,10 @@ Once the user has successfully been registered, you can authenticate and generat
 // Load the acount name, password and client config as before
 ...
 // Authenticate to the key server
-let dams_client = DamsClient::authenticated_client(&account_name, &password, &client_config).await?;
+let lock_keeper_client = LockKeeperClient::authenticated_client(&account_name, &password, &client_config).await?;
 
 // If successful, proceed to generate a secret with the established session
-let result = dams_client.generate_and_store().await
+let result = lock_keeper_client.generate_and_store().await
                         .map_err(|e| anyhow!(e))
                         .map(|sec_key| {
                             // Proceed to retrieve the key id and wrapped secret
@@ -156,7 +156,7 @@ let key_id: KeyId = serde_json::from_str(&key_id_str)?;
 
 // If successful, proceed to retrieve the secret key from the server with the key ID
 // and can specify a context for your intent with the secret (i.e., for local storage).
-let result = dams_client.retrieve(&key_id, RetrieveContext::LocalOnly)
+let result = lock_keeper_client.retrieve(&key_id, RetrieveContext::LocalOnly)
                         .await
                         .map_err(|e| anyhow!(e))
                         .map(|arbitrary_key| {
@@ -168,7 +168,7 @@ let result = dams_client.retrieve(&key_id, RetrieveContext::LocalOnly)
 
 ## What's Next
 
-In the next development phase, we will demonstrate the following functionality in the `DamsClient`:
+In the next development phase, we will demonstrate the following functionality in the `LockKeeperClient`:
 
 * A remote client and signing key support in addition to arbitrary keys
 * An updated demo app that exercises the remote client API
