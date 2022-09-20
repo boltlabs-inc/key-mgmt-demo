@@ -2,3 +2,5 @@
 
 /dev/localhost.crt
 /dev/localhost.key
+
+local.db
