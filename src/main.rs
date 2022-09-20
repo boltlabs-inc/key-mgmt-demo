@@ -1,18 +1,18 @@
 //! This is a demonstration of a simple API for generating and retrieving arbitrary secrets from a key server.
-//! We show the integrated use of TLS and OPAQUE protocol to securely transfer key material between the DamsClient
+//! We show the integrated use of TLS and OPAQUE protocol to securely transfer key material between the LockKeeperClient
 //! and key server, where it is securely stored.
 //!
 
 use crate::client::Client;
 use crate::Client::Register;
 use anyhow::anyhow;
-use dams::config::client::Config;
-use dams::crypto::KeyId;
-use dams::user::AccountName;
-use dams::RetrieveContext;
-use dams_client::client::DamsClient;
-use dams_client::client::Password;
 use kv::{Config as KvConfig, Store};
+use lock_keeper::config::client::Config;
+use lock_keeper::crypto::KeyId;
+use lock_keeper::user::AccountName;
+use lock_keeper::RetrieveContext;
+use lock_keeper_client::client::LockKeeperClient;
+use lock_keeper_client::client::Password;
 use std::str::FromStr;
 use structopt::StructOpt;
 use tracing::{error, info};
@@ -32,7 +32,7 @@ pub async fn main() -> anyhow::Result<()> {
 
     let cli: client::Cli = client::Cli::from_args();
     // Load the client configuration from disk (Client.toml)
-    // Needs to be provided with each DamsClient API call
+    // Needs to be provided with each LockKeeperClient API call
     let client_config = Config::load(cli.config)
         .await
         .expect("Failed to load client config");
@@ -50,7 +50,7 @@ pub async fn main() -> anyhow::Result<()> {
 
     let result = match cli.client {
         // Register once with an account and password to the key server
-        Register(_) => DamsClient::register(&account_name, &password, &client_config)
+        Register(_) => LockKeeperClient::register(&account_name, &password, &client_config)
             .await
             .map_err(|e| anyhow!(e))
             .map(|sess| {
@@ -59,10 +59,11 @@ pub async fn main() -> anyhow::Result<()> {
             }),
         Client::Generate(_) => {
             // Authenticate user to the key server
-            let dams_client =
-                DamsClient::authenticated_client(&account_name, &password, &client_config).await?;
+            let lock_keeper_client =
+                LockKeeperClient::authenticated_client(&account_name, &password, &client_config)
+                    .await?;
             // If successful, proceed to generate a secret with the established session
-            dams_client
+            lock_keeper_client
                 .generate_and_store()
                 .await
                 .map_err(|e| anyhow!(e))
@@ -82,8 +83,9 @@ pub async fn main() -> anyhow::Result<()> {
         }
         Client::Retrieve(retrieve) => {
             // Authenticate user to the key server
-            let dams_client =
-                DamsClient::authenticated_client(&account_name, &password, &client_config).await?;
+            let lock_keeper_client =
+                LockKeeperClient::authenticated_client(&account_name, &password, &client_config)
+                    .await?;
             let key_id_vec = hex::decode(&retrieve.key_id).unwrap();
             info!("Key ID: {:?}", key_id_vec);
             let key_id_str = format!("{:?}", key_id_vec);
@@ -91,7 +93,7 @@ pub async fn main() -> anyhow::Result<()> {
             let key_id: KeyId = serde_json::from_str(&key_id_str).unwrap();
             // If successful, proceed to retrieve the secret key from the server with the key ID
             // and can specify a context for your intent with the secret (i.e., for local storage).
-            dams_client
+            lock_keeper_client
                 .retrieve(&key_id, RetrieveContext::LocalOnly)
                 .await
                 .map_err(|e| anyhow!(e))
@@ -106,9 +108,10 @@ pub async fn main() -> anyhow::Result<()> {
                 })?
         }
         Client::List(_list) => {
-            let dams_client =
-                DamsClient::authenticated_client(&account_name, &password, &client_config).await;
-            if dams_client.is_ok() {
+            let lock_keeper_client =
+                LockKeeperClient::authenticated_client(&account_name, &password, &client_config)
+                    .await;
+            if lock_keeper_client.is_ok() {
                 let mut index = 1;
                 let bucket = store.bucket::<String, String>(Some(&cli.account_name))?;
                 for item in bucket.iter() {
@@ -122,9 +125,10 @@ pub async fn main() -> anyhow::Result<()> {
             return Ok(());
         }
         Client::Delete(delete) => {
-            let dams_client =
-                DamsClient::authenticated_client(&account_name, &password, &client_config).await;
-            if dams_client.is_ok() {
+            let lock_keeper_client =
+                LockKeeperClient::authenticated_client(&account_name, &password, &client_config)
+                    .await;
+            if lock_keeper_client.is_ok() {
                 let bucket = store.bucket::<String, String>(Some(&cli.account_name))?;
                 let key_id = delete.key_id;
                 let value = String::from("None");
