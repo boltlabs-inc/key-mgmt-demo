@@ -423,7 +423,7 @@ dependencies = [
 [[package]]
 name = "dams"
 version = "0.1.0"
-source = "git+https://github.com/boltlabs-inc/key-mgmt.git?branch=develop#f6e72bf66f9b6302334977ee2d3e7896d6e8a845"
+source = "git+https://github.com/boltlabs-inc/key-mgmt.git?branch=main#d3c80597dd56f06b501bd89ff2b280c4c20e0097"
 dependencies = [
  "argon2",
  "async-trait",
@@ -463,7 +463,7 @@ dependencies = [
 [[package]]
 name = "dams-client"
 version = "0.1.0"
-source = "git+https://github.com/boltlabs-inc/key-mgmt.git?branch=develop#f6e72bf66f9b6302334977ee2d3e7896d6e8a845"
+source = "git+https://github.com/boltlabs-inc/key-mgmt.git?branch=main#d3c80597dd56f06b501bd89ff2b280c4c20e0097"
 dependencies = [
  "argon2",
  "async-trait",
